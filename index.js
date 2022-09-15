@@ -1,37 +1,8 @@
-const express = require("express");
-let products = [];
-const app = express();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-const port = 8080;
+import Contenedor from "./container.js";
+import { app } from "./server.js";
+import Express from "express";
 
-// Levanta el server
-app.listen(port, () => {
-    console.log("server up");
-});
-
-app.use("/api/productos/archivos", express.static("public"));
-
-class Contenedor {
-    save(obj) {
-        for (let i = 0; i < obj.length; i++) {
-            if (obj[i].id === undefined) {
-                obj[i].id = i;
-                products.push(obj[i]);
-            }
-        }
-        return products;
-    }
-    getAll() {
-        return products;
-    }
-    getById(num) {
-        let findProduct = products.find((product) => product.id == num);
-        if (findProduct === undefined)
-            return `no existe ningun producto para el valor que deseas`;
-        return findProduct;
-    }
-}
+export let products = [];
 const Container = new Contenedor();
 
 const Save = () => {
@@ -67,7 +38,7 @@ const Save = () => {
 Save();
 
 //Router
-const apiRouter = express.Router();
+const apiRouter = Express.Router();
 
 // get Products
 apiRouter.get("/", (req, res) => {
@@ -83,7 +54,7 @@ apiRouter.get("/:id", (req, res) => {
 
 // add products and add id
 apiRouter.post("/", (req, res) => {
-    if (!req.body.name || !req.body.price || !req.body.description) {
+    if (!req.body.title || !req.body.price || !req.body.thumbnail) {
         return res.send("completar todo el formulario");
     }
     let lastId = products[products.length - 1].id + 1;
@@ -96,9 +67,9 @@ apiRouter.post("/", (req, res) => {
 // update product based off id
 apiRouter.put("/:id", (req, res) => {
     let product = Container.getById(req.params.id);
-    product.name = req.body.name;
+    product.title = req.body.title;
     product.price = req.body.price;
-    product.description = req.body.description;
+    product.thumbnail = req.body.thumbnail;
     product.id = parseInt(req.params.id);
 
     res.send(product);
